@@ -133,7 +133,8 @@ INSERT INTO `books`(`bookId`,`bookName`,`bookCounts`,`detail`) VALUES
         <!-- 绑定数据源 -->
         <property name="dataSource" ref="dataSource"></property>
         <!-- 绑定mybatis配置文件 -->
-        <property name="configLocation" value="mybatis-config.xml"></property>
+	<!-- 一定要用classpath: 不让就报错-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"></property>
     </bean>
 
 
@@ -294,7 +295,8 @@ public class BookServiceImpl implements BookService {
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>classpath:spring-mvc.xml</param-value>
+	    <!-- 这里要绑定总的spring配置文件，否则可能会有些bean找不到 -->
+            <param-value>classpath:applicationContext.xml</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -345,4 +347,23 @@ public class BookServiceImpl implements BookService {
     </bean>
 
 </beans>
+```
+- BookController
+```java
+@Controller
+@RequestMapping("/book")
+public class BookController {
+    //Controller调用Service层
+    @Autowired
+    @Qualifier("bookServiceImpl")
+    private BookService bookService;
+
+    //查询所有的书籍
+    @GetMapping("/list")
+    public String book_list(Model model){
+        List<Books> books = bookService.selectBooks();
+        model.addAttribute("allBooks",books);
+        return "booklist";
+    }
+}
 ```
