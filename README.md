@@ -101,6 +101,82 @@ INSERT INTO `books`(`bookId`,`bookName`,`bookCounts`,`detail`) VALUES
         http://www.springframework.org/schema/tx/spring-tx.xsd">
 </beans>
 ```
+
+- spring-dao.xml
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 关联数据库配置文件 -->
+    <context:property-placeholder location="classpath:database.properties"/>
+
+    <!-- 连接池
+        dbcp: 半自动化操作  不能自动链接
+        c3p0: 自动化操作(自动化的加载配置文件，并且可以自动配置到对象中)
+        druid:
+        hikari:
+     -->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="${jdbc.driver}"></property>
+        <property name="jdbcUrl" value="${jdbc.url}"></property>
+        <property name="user" value="${jdbc.username}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+    </bean>
+
+    <!-- SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 绑定数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 绑定mybatis配置文件 -->
+        <property name="configLocation" value="mybatis-config.xml"></property>
+    </bean>
+
+
+    <!-- 配置dao接口扫描包 动态的实现了Dao接口可以注入到Spring容器中 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 注入sqlSessionFactory -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!-- 配置要扫描的包 -->
+        <property name="basePackage" value="com.mildlamb.dao"></property>
+    </bean>
+
+</beans>
+```
+
+- spring-service.xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!-- 扫描service下的包 -->
+    <context:component-scan base-package="com.mildlamb.service"/>
+
+    <!-- 将所有的业务类，注入到spring -->
+    <bean id="bookService" class="com.mildlamb.service.BookServiceImpl">
+        <property name="bookMapper" ref="bookMapper"></property>
+    </bean>
+
+
+    <!-- 声明式事务 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 注入数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+</beans>
+```
+
 - Mybatis配置文件
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
