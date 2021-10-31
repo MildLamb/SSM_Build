@@ -295,7 +295,6 @@ public class BookServiceImpl implements BookService {
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
-	    <!-- 这里要绑定总的spring配置文件，否则可能会有些bean找不到 -->
             <param-value>classpath:applicationContext.xml</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
@@ -310,7 +309,7 @@ public class BookServiceImpl implements BookService {
         <filter-name>encodingFilter</filter-name>
         <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
         <init-param>
-            <param-name>encofing</param-name>
+            <param-name>encoding</param-name>
             <param-value>utf-8</param-value>
         </init-param>
     </filter>
@@ -318,6 +317,10 @@ public class BookServiceImpl implements BookService {
         <filter-name>encodingFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <session-config>
+        <session-timeout>15</session-timeout>
+    </session-config>
 
 </web-app>
 ```
