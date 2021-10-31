@@ -107,4 +107,100 @@ INSERT INTO `books`(`bookId`,`bookName`,`bookCounts`,`detail`) VALUES
 <!DOCTYPE configuration
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!-- mybatis核心配置文件 -->
+<configuration>
+    <!-- mybatis配置数据源，但与spring整合后可以给spring去做 -->
+
+    <typeAliases>
+        <package name="com.mildlamb.pojo"/>
+    </typeAliases>
+
+    <mappers>
+        <mapper class="com.mildlamb.dao.BookMapper"></mapper>
+    </mappers>
+</configuration>
+```
+- mapper映射文件
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mildlamb.dao.BookMapper">
+    <insert id="addBook" parameterType="books">
+        insert into ssmbuild.books(bookName, bookCounts, detail) values (#{bookName},#{bookCounts},#{detail})
+    </insert>
+
+    <delete id="delBook" parameterType="int">
+        delete from ssmbuild.books
+        <where>
+            bookId = #{bookid}
+        </where>
+    </delete>
+
+    <update id="updateBook" parameterType="books">
+        update ssmbuild.books set bookName=#{bookName},bookCounts=#{bookCounts},detail=#{detail}
+        <where>
+            bookId = #{bookId}
+        </where>
+    </update>
+
+    <select id="selectBooks" resultType="books">
+        select * from ssmbuild.books
+    </select>
+    
+    <select id="selectBookById" parameterType="int" resultType="books">
+        select * from ssmbuild.books
+        <where>
+            bookId = #{bid}
+        </where>
+    </select>
+</mapper>
+```
+- dao(mapper)接口
+```java
+public interface BookMapper {
+    //增加一本书
+    int addBook(Books books);
+    //删除一本书
+    int delBook(@Param("bookid") Integer id);
+    //修改一本书
+    int updateBook(Books books);
+    //查询书籍
+    List<Books> selectBooks();
+    //查询一本书
+    Books selectBookById(@Param("bid") Integer id);
+}
+```
+- service实现类(接口省略)
+```java
+public class BookServiceImpl implements BookService {
+
+    //service调用dao层
+    private BookMapper bookMapper;
+
+    public void setBookMapper(BookMapper bookMapper) {
+        this.bookMapper = bookMapper;
+    }
+
+    public int addBook(Books books) {
+        return bookMapper.addBook(books);
+    }
+
+    public int delBook(Integer id) {
+        return bookMapper.delBook(id);
+    }
+
+    public int updateBook(Books books) {
+        return bookMapper.updateBook(books);
+    }
+
+    public List<Books> selectBooks() {
+        return bookMapper.selectBooks();
+    }
+
+    public Books selectBookById(Integer id) {
+        return bookMapper.selectBookById(id);
+    }
+}
 ```
