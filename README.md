@@ -202,5 +202,5 @@ public class BookServiceImpl implements BookService {
     public Books selectBookById(Integer id) {
         return bookMapper.selectBookById(id);
     }
-}
+} 
 ```
